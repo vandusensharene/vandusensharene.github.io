@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sharene Van Dusen | Vantage Operations — Data Analytics Portfolio</title>
+<meta name="description" content="Data analytics portfolio of Sharene Van Dusen — Tableau, Python, SQL, and Excel projects built on real-world sales and operations problems.">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:   #0D1B2A;
+    --navy2:  #12233A;
+    --card:   #16293F;
+    --border: #1F3A52;
+    --teal:   #0F8B8B;
+    --accent: #00C2C2;
+    --amber:  #E8A838;
+    --text:   #E8F0F7;
+    --muted:  #7A9BB5;
+    --white:  #FFFFFF;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--navy);
+    color: var(--text);
+    line-height: 1.6;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+
+  /* NAV */
+  nav {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(13,27,42,0.92);
+    backdrop-filter: blur(6px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-inner {
+    display: flex; align-items: center; justify-content: space-between;
+    height: 60px;
+  }
+  .brand { font-weight: 700; font-size: 16px; letter-spacing: 0.5px; color: var(--white); }
+  .brand span { color: var(--accent); font-weight: 400; }
+  .nav-links { display: flex; gap: 24px; font-size: 14px; }
+  .nav-links a { color: var(--muted); transition: color .2s; }
+  .nav-links a:hover { color: var(--accent); }
+
+  /* HERO */
+  header { padding: 88px 0 64px; border-bottom: 1px solid var(--border); }
+  .eyebrow {
+    font-family: 'DM Mono', monospace; font-size: 13px;
+    color: var(--accent); letter-spacing: 1px; margin-bottom: 18px;
+  }
+  .eyebrow::before { content: "> "; color: var(--muted); }
+  h1 {
+    font-size: clamp(32px, 5vw, 52px); font-weight: 700;
+    color: var(--white); line-height: 1.15; max-width: 720px;
+  }
+  h1 em { font-style: normal; color: var(--accent); }
+  .sub {
+    margin-top: 20px; max-width: 640px;
+    font-size: 17px; color: var(--muted); font-weight: 300;
+  }
+  .hero-chips { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 32px; }
+  .chip {
+    font-family: 'DM Mono', monospace; font-size: 12.5px;
+    border: 1px solid var(--border); border-radius: 4px;
+    padding: 6px 12px; color: var(--text); background: var(--navy2);
+  }
+  .chip b { color: var(--accent); font-weight: 500; }
+
+  /* SECTIONS */
+  section { padding: 64px 0; border-bottom: 1px solid var(--border); }
+  .sec-label {
+    font-family: 'DM Mono', monospace; font-size: 13px;
+    color: var(--amber); letter-spacing: 1.5px; text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  h2 { font-size: 26px; font-weight: 700; color: var(--white); margin-bottom: 28px; }
+
+  /* PROJECTS */
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+  .proj {
+    background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+    padding: 26px 26px 22px; display: flex; flex-direction: column;
+    transition: border-color .2s, transform .2s;
+  }
+  .proj:hover { border-color: var(--teal); transform: translateY(-3px); }
+  .proj.featured { border-color: var(--teal); }
+  .proj-tag {
+    font-family: 'DM Mono', monospace; font-size: 11.5px;
+    color: var(--accent); letter-spacing: 1px; margin-bottom: 12px;
+  }
+  .proj.featured .proj-tag::after {
+    content: "FEATURED"; color: var(--amber); margin-left: 12px;
+  }
+  .proj h3 { font-size: 18px; color: var(--white); font-weight: 500; margin-bottom: 10px; }
+  .proj p { font-size: 14.5px; color: var(--muted); flex: 1; }
+  .proj-tools { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0 18px; }
+  .tool {
+    font-family: 'DM Mono', monospace; font-size: 11px;
+    background: var(--navy); border: 1px solid var(--border);
+    border-radius: 3px; padding: 3px 8px; color: var(--text);
+  }
+  .proj-link {
+    font-size: 14px; font-weight: 500; display: inline-flex; align-items: center; gap: 6px;
+  }
+  .proj-link::after { content: "→"; transition: transform .2s; }
+  .proj:hover .proj-link::after { transform: translateX(4px); }
+  .proj.soon { opacity: 0.65; }
+  .proj.soon .proj-link { color: var(--muted); cursor: default; }
+  .proj.soon .proj-link::after { content: ""; }
+
+  /* SKILLS */
+  .skills { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
+  .skill { background: var(--navy2); border: 1px solid var(--border); border-radius: 8px; padding: 22px; }
+  .skill h4 {
+    font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 500;
+    color: var(--accent); letter-spacing: 1px; margin-bottom: 10px;
+  }
+  .skill p { font-size: 14px; color: var(--muted); }
+
+  /* ABOUT + FOOTER */
+  .about p { max-width: 720px; font-size: 16px; color: var(--muted); margin-bottom: 14px; }
+  .about p b { color: var(--text); font-weight: 500; }
+  footer { padding: 48px 0 64px; }
+  .foot-inner { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; }
+  .foot-links { display: flex; gap: 20px; font-size: 14px; }
+  .foot-note { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--muted); }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .proj, .proj-link::after { transition: none; }
+  }
+  @media (max-width: 560px) {
+    .nav-links { gap: 14px; font-size: 13px; }
+    header { padding: 56px 0 44px; }
+    section { padding: 44px 0; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap nav-inner">
+    <div class="brand">Vantage<span>Operations</span></div>
+    <div class="nav-links">
+      <a href="#projects">Projects</a>
+      <a href="#skills">Skills</a>
+      <a href="#about">About</a>
+    </div>
+  </div>
+</nav>
+
+<header>
+  <div class="wrap">
+    <div class="eyebrow">sharene_van_dusen · data analytics portfolio</div>
+    <h1>Turning operations data into <em>decisions people can act on</em>.</h1>
+    <p class="sub">I'm Sharene Van Dusen — an operations analyst with 10+ years in automotive OEM account management, now building analytics that connect the front office to the numbers. This portfolio collects my dashboard and analysis work, built with synthetic and public data.</p>
+    <div class="hero-chips">
+      <div class="chip"><b>Tableau</b> · dashboards</div>
+      <div class="chip"><b>Python</b> · data wrangling</div>
+      <div class="chip"><b>SQL</b> · querying</div>
+      <div class="chip"><b>Excel</b> · Power Query</div>
+      <div class="chip"><b>10+ yrs</b> · automotive OEM</div>
+    </div>
+  </div>
+</header>
+
+<section id="projects">
+  <div class="wrap">
+    <div class="sec-label">// Portfolio</div>
+    <h2>Projects</h2>
+    <div class="grid">
+
+      <a class="proj featured" href="projects/sales-booking-dashboard/">
+        <div class="proj-tag">CAPSTONE</div>
+        <h3>Sales &amp; Booking Ratio Dashboard</h3>
+        <p>An interactive sales performance dashboard tracking revenue, bookings, and 3-month rolling booking ratios across regions and teams — modeled on the reporting infrastructure I build professionally, rebuilt here with fully synthetic data.</p>
+        <div class="proj-tools">
+          <span class="tool">HTML/JS</span><span class="tool">Chart.js</span><span class="tool">Tableau concepts</span>
+        </div>
+        <span class="proj-link">View live dashboard</span>
+      </a>
+
+      <div class="proj soon">
+        <div class="proj-tag">CASE STUDY</div>
+        <h3>ChemCorp Financial Analysis</h3>
+        <p>Eleven-question financial analysis of a chemical manufacturer's FY performance — profitability drivers, cost structure, and margin trends visualized as an interactive report.</p>
+        <div class="proj-tools">
+          <span class="tool">Tableau</span><span class="tool">Excel</span>
+        </div>
+        <span class="proj-link">Coming soon</span>
+      </div>
+
+      <div class="proj soon">
+        <div class="proj-tag">CASE STUDY</div>
+        <h3>Southern Water Corp Economics</h3>
+        <p>Statistical and economic analysis of pump failure behavior using Python — descriptive statistics, rolling standard deviation, and multivariate regression to predict failure conditions.</p>
+        <div class="proj-tools">
+          <span class="tool">Python</span><span class="tool">pandas</span><span class="tool">statsmodels</span>
+        </div>
+        <span class="proj-link">Coming soon</span>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section id="skills">
+  <div class="wrap">
+    <div class="sec-label">// Toolkit</div>
+    <h2>What I work with</h2>
+    <div class="skills">
+      <div class="skill">
+        <h4>VISUALIZATION</h4>
+        <p>Tableau Desktop &amp; Server, dashboard design, KPI frameworks, executive reporting, Chart.js</p>
+      </div>
+      <div class="skill">
+        <h4>DATA PREP</h4>
+        <p>Python (pandas), Excel Power Query, data cleaning pipelines, multi-source blending</p>
+      </div>
+      <div class="skill">
+        <h4>ANALYSIS</h4>
+        <p>SQL, statistical analysis, trend &amp; variance reporting, booking/sales ratio modeling</p>
+      </div>
+      <div class="skill">
+        <h4>DOMAIN</h4>
+        <p>Automotive OEM &amp; Tier 1 operations, sales pipeline analytics, CRM (Salesforce), EDI &amp; supply chain coordination</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="about">
+  <div class="wrap about">
+    <div class="sec-label">// Background</div>
+    <h2>About</h2>
+    <p>I spent a decade managing multi-million-dollar OEM accounts — <b>Honda, Ford, GM, Stellantis, Toyota, and Subaru</b> — at a global Tier 1 supplier before moving into operations analytics. That background means I don't just build dashboards; I build them for the people who have to defend the numbers in the room.</p>
+    <p>I completed a <b>Data Analytics bootcamp (Lawrence Technological University / Springboard)</b> covering business statistics, Excel, SQL, Python, and Tableau, and I run <b>Vantage Operations LLC</b>, a consulting practice helping small and mid-size businesses close the gap between day-to-day operations and the data needed to run them well.</p>
+    <p>Everything on this site uses <b>synthetic or public data</b> — no proprietary or client information appears in any project.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot-inner">
+    <div class="foot-links">
+      <a href="https://www.linkedin.com/in/sharene-van-dusen-3233785" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="https://github.com/vandusensharene" target="_blank" rel="noopener">GitHub</a>
+      <a href="mailto:vandusensharene6@gmail.com">Email</a>
+    </div>
+    <div class="foot-note">© 2026 Sharene Van Dusen · Vantage Operations LLC · vandusensharene.github.io</div>
+  </div>
+</footer>
+
+</body>
+</html>
