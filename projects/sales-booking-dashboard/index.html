@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<!--
+  Sales & Booking Analytics Demo
+  Built by Sharene Van Dusen | Vantage Operations LLC
+  July 2026
+
+  Notes to self:
+  - All data is generated in the script at the bottom (seeded random, so the
+    numbers stay the same every load). Nothing here is real customer data.
+  - Booking ratio = bookings / revenue over a 3-month rolling window.
+    Over 1.00 means orders are coming in faster than we're shipping.
+  - Charts are Chart.js. Every filter change tears down and rebuilds
+    everything from the raw rows - same idea as a Tableau quick filter.
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sales & Booking Analytics | Sharene Van Dusen — Vantage Operations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Source+Sans+3:wght@400;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root{
+    --paper:#F2F4F5;
+    --card:#FFFFFF;
+    --ink:#16232A;
+    --ink-soft:#51626B;
+    --line:#DBE1E4;
+    --teal:#0E6E66;
+    --teal-lt:#5FB3AA;
+    --teal-bg:#E2EFED;
+    --amber:#C2670A;
+    --amber-lt:#EBAF6B;
+    --blue:#2E75B6;
+    --purple:#7A5AA6;
+    --mono:'IBM Plex Mono',monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--paper);color:var(--ink);font-family:'Source Sans 3',sans-serif;font-size:15px;line-height:1.5}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 22px 70px}
+
+  /* ---------- top bar ---------- */
+  .topbar{
+    background:var(--ink);
+    color:#E9EEF0;
+    margin:0 -22px 26px;
+    padding:20px 22px 18px;
+  }
+  .topbar-inner{max-width:1136px;margin:0 auto;display:flex;flex-wrap:wrap;align-items:baseline;gap:10px 22px}
+  .brand{
+    font-family:'Archivo',sans-serif;font-weight:800;font-size:21px;letter-spacing:-.01em;
+  }
+  .brand span{color:#8FD4CC}
+  .topbar .meta{font-family:var(--mono);font-size:11.5px;color:#9FB0B8;letter-spacing:.06em}
+  .topbar .meta b{color:#E9EEF0;font-weight:500}
+  .demo-tag{
+    margin-left:auto;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;
+    border:1px solid #8FD4CC;color:#8FD4CC;padding:3px 10px;
+  }
+
+  /* ---------- filter bar ---------- */
+  .filters{
+    display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;
+    background:var(--card);border:1px solid var(--line);padding:16px 18px;margin-bottom:22px;
+  }
+  .filters label{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:5px}
+  .filters select{
+    font-family:'Source Sans 3',sans-serif;font-size:14px;padding:7px 10px;
+    border:1px solid var(--line);background:#FBFCFC;color:var(--ink);min-width:150px;
+  }
+  .filters select:focus-visible{outline:2px solid var(--amber);outline-offset:1px}
+  .filters .reset{
+    margin-left:auto;font-family:var(--mono);font-size:12px;color:var(--teal);
+    background:none;border:1px solid var(--teal);padding:8px 14px;cursor:pointer;
+  }
+  .filters .reset:hover{background:var(--teal-bg)}
+
+  /* ---------- KPI row ---------- */
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-bottom:22px}
+  .kpi{background:var(--card);border:1px solid var(--line);padding:16px 18px;border-top:3px solid var(--teal)}
+  .kpi:nth-child(2){border-top-color:var(--blue)}
+  .kpi:nth-child(3){border-top-color:var(--amber)}
+  .kpi:nth-child(4){border-top-color:var(--purple)}
+  .kpi .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft)}
+  .kpi .val{font-family:'Archivo',sans-serif;font-weight:800;font-size:30px;letter-spacing:-.02em;margin-top:4px}
+  .kpi .delta{font-family:var(--mono);font-size:12px;margin-top:2px}
+  .delta.up{color:var(--teal)} .delta.down{color:#B3541E}
+
+  /* ---------- panels ---------- */
+  .row{display:grid;gap:18px;margin-bottom:18px}
+  .row.two{grid-template-columns:3fr 2fr}
+  .row.three{grid-template-columns:1fr 1fr 1fr}
+  @media(max-width:900px){.row.two,.row.three{grid-template-columns:1fr}}
+  .panel{background:var(--card);border:1px solid var(--line);padding:18px 20px}
+  .panel h2{
+    font-family:'Archivo',sans-serif;font-weight:700;font-size:15.5px;letter-spacing:-.005em;margin-bottom:2px;
+  }
+  .panel .sub{font-size:13px;color:var(--ink-soft);margin-bottom:12px}
+  .chart-box{position:relative;height:250px}
+  .chart-box.tall{height:290px}
+
+  /* ---------- table ---------- */
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  thead th{
+    font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft);
+    text-align:left;padding:8px 10px;border-bottom:2px solid var(--line);
+  }
+  thead th.num, td.num{text-align:right;font-variant-numeric:tabular-nums}
+  tbody td{padding:8px 10px;border-bottom:1px solid var(--line)}
+  tbody tr:hover{background:var(--teal-bg)}
+  .ratio-chip{font-family:var(--mono);font-size:12px;padding:2px 8px}
+  .ratio-chip.good{background:var(--teal-bg);color:var(--teal)}
+  .ratio-chip.low{background:#F6E8D8;color:var(--amber)}
+
+  /* ---------- skills strip ---------- */
+  .skills{
+    background:var(--ink);color:#E7EDEF;padding:22px 24px;margin-top:26px;
+  }
+  .skills h3{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#8FD4CC;margin-bottom:14px}
+  .skills-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+  .skill{border-left:2px solid #8FD4CC;padding-left:12px}
+  .skill b{font-family:'Archivo',sans-serif;font-weight:700;font-size:14px;display:block;margin-bottom:3px}
+  .skill span{font-size:13.5px;color:#B9C6CC}
+  footer{margin-top:22px;font-family:var(--mono);font-size:12px;color:var(--ink-soft)}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">Vantage<span>Operations</span></div>
+    <div class="meta">SALES &amp; BOOKING PERFORMANCE · <b id="scopeLabel">All Regions · All Teams · FY View</b></div>
+    <div class="demo-tag">Sample Data</div>
+    <div class="meta" style="width:100%;margin-top:2px">Built by Sharene Van Dusen · Data Analytics Portfolio</div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- filters -->
+  <div class="filters">
+    <div>
+      <label for="fRegion">Region</label>
+      <select id="fRegion">
+        <option value="all">All Regions</option>
+        <option>Americas</option><option>Europe</option><option>Asia Pacific</option>
+      </select>
+    </div>
+    <div>
+      <label for="fTeam">Sales Team</label>
+      <select id="fTeam">
+        <option value="all">All Teams</option>
+        <option>Team North</option><option>Team South</option><option>Team East</option><option>Team West</option>
+      </select>
+    </div>
+    <div>
+      <label for="fPeriod">Period</label>
+      <select id="fPeriod">
+        <option value="12">Trailing 12 Months</option>
+        <option value="6">Trailing 6 Months</option>
+        <option value="3">Trailing 3 Months</option>
+      </select>
+    </div>
+    <button class="reset" id="btnReset">Reset Filters</button>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpis">
+    <div class="kpi"><div class="lbl">Revenue (Actual)</div><div class="val" id="kRev">–</div><div class="delta" id="kRevD"></div></div>
+    <div class="kpi"><div class="lbl">Open Pipeline</div><div class="val" id="kPipe">–</div><div class="delta" id="kPipeD"></div></div>
+    <div class="kpi"><div class="lbl">Booking Ratio</div><div class="val" id="kRatio">–</div><div class="delta" id="kRatioD"></div></div>
+    <div class="kpi"><div class="lbl">Active Customers</div><div class="val" id="kCust">–</div><div class="delta" id="kCustD"></div></div>
+  </div>
+
+  <!-- revenue + ratio -->
+  <div class="row two">
+    <div class="panel">
+      <h2>Revenue vs Plan</h2>
+      <div class="sub">Monthly actuals against plan — bars are actual, line is plan</div>
+      <div class="chart-box tall"><canvas id="cRevenue"></canvas></div>
+    </div>
+    <div class="panel">
+      <h2>Booking Ratio Trend</h2>
+      <div class="sub">3-month rolling average — above 1.00 indicates orders outpacing sales</div>
+      <div class="chart-box tall"><canvas id="cRatio"></canvas></div>
+    </div>
+  </div>
+
+  <!-- pipeline + team + customers -->
+  <div class="row three">
+    <div class="panel">
+      <h2>Pipeline by Stage</h2>
+      <div class="sub">Open opportunity value by funnel stage</div>
+      <div class="chart-box"><canvas id="cFunnel"></canvas></div>
+    </div>
+    <div class="panel">
+      <h2>Revenue by Team</h2>
+      <div class="sub">Actuals for the selected period</div>
+      <div class="chart-box"><canvas id="cTeam"></canvas></div>
+    </div>
+    <div class="panel">
+      <h2>Top Customers</h2>
+      <div class="sub">Ranked by revenue, selected period</div>
+      <div class="chart-box"><canvas id="cCust"></canvas></div>
+    </div>
+  </div>
+
+  <!-- detail table -->
+  <div class="panel">
+    <h2>Customer Activity Detail</h2>
+    <div class="sub">Click column context — bookings, revenue, and booking ratio by customer (synthetic accounts)</div>
+    <table id="tblCust">
+      <thead>
+        <tr><th>Customer</th><th>Region</th><th>Team</th><th class="num">Bookings</th><th class="num">Revenue</th><th class="num">Open Pipeline</th><th class="num">Booking Ratio</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <!-- about this build -->
+  <div class="skills">
+    <h3>About This Build</h3>
+    <div class="skills-grid">
+      <div class="skill"><b>Why these metrics</b><span>I work with sales and booking data every day, so I built this around the numbers I actually watch: revenue against plan, booking ratio, and open pipeline. Each one has a defined formula in the code — nothing is hard-coded.</span></div>
+      <div class="skill"><b>How the data works</b><span>The page generates its own sample dataset — one row per customer per month, ten fictional accounts across three regions. It's seeded so the numbers don't change between loads, which makes it easier to demo.</span></div>
+      <div class="skill"><b>The filters</b><span>Region, team, and time period all re-run the aggregation from the raw rows, so every KPI, chart, and table stays in sync. Same drill-down idea I use in my Tableau work, just done in JavaScript.</span></div>
+      <div class="skill"><b>Booking ratio logic</b><span>This is a 3-month rolling average of bookings over sales. Over 1.00 means orders are coming in faster than product is shipping — that's the number I'd flag first in a weekly review.</span></div>
+      <div class="skill"><b>Chart choices</b><span>Bars where I'm comparing, lines where I'm trending, horizontal bars where I'm ranking. The detail table is there because summary charts always generate the "okay, but show me the accounts" question.</span></div>
+      <div class="skill"><b>What it's not</b><span>None of this is real customer or employer data — every account name and number is made up. The point is the build, not the dataset.</span></div>
+    </div>
+  </div>
+
+  <footer>Sample dataset, fictional accounts. Happy to walk through any part of the code — Sharene Van Dusen, Vantage Operations LLC.</footer>
+</div>
+
+<script>
+/* ---------------- synthetic dataset ---------------- */
+const REGIONS = ["Americas","Europe","Asia Pacific"];
+const TEAMS = ["Team North","Team South","Team East","Team West"];
+const CUSTOMERS = [
+  {name:"Meridian Motors", region:"Americas", team:"Team North"},
+  {name:"Cobalt Systems", region:"Americas", team:"Team South"},
+  {name:"Halcyon Electric", region:"Europe", team:"Team East"},
+  {name:"Northgate Industries", region:"Americas", team:"Team North"},
+  {name:"Aurora Components", region:"Asia Pacific", team:"Team West"},
+  {name:"Sterling Drivetrain", region:"Europe", team:"Team East"},
+  {name:"Pinnacle Mobility", region:"Americas", team:"Team South"},
+  {name:"Redwood Technologies", region:"Asia Pacific", team:"Team West"},
+  {name:"Summit Powertrain", region:"Europe", team:"Team East"},
+  {name:"Lakeshore Electronics", region:"Americas", team:"Team North"}
+];
+const MONTHS = [];
+(function(){
+  const now = new Date(2026, 6, 1); // Jul 2026
+  for(let i=11;i>=0;i--){
+    const d = new Date(now.getFullYear(), now.getMonth()-i, 1);
+    MONTHS.push({key:d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0"),
+                 label:d.toLocaleString("en-US",{month:"short"})+" '"+String(d.getFullYear()).slice(2)});
+  }
+})();
+
+/* deterministic pseudo-random so the demo is stable */
+let seed = 42;
+function rand(){ seed = (seed*9301+49297)%233280; return seed/233280; }
+
+/* build transaction-level records: one row per customer per month */
+const DATA = [];
+CUSTOMERS.forEach((c,ci)=>{
+  const base = 180 + rand()*420;            // customer size ($K/month scale)
+  MONTHS.forEach((m,mi)=>{
+    const seasonal = 1 + 0.12*Math.sin((mi+ci)/2);
+    const revenue  = base * seasonal * (0.85 + rand()*0.3);
+    const bookings = revenue * (0.85 + rand()*0.4);      // ratio ~0.85–1.25
+    const plan     = base * 1.02;
+    const pipeline = base * (0.6 + rand()*1.4);
+    DATA.push({cust:c.name, region:c.region, team:c.team, mi, month:m.key,
+               revenue, bookings, plan, pipeline});
+  });
+});
+
+/* ---------------- filtering + aggregation ---------------- */
+const $ = id => document.getElementById(id);
+const fmt$ = v => "$"+(v>=1000 ? (v/1000).toFixed(2)+"M" : Math.round(v)+"K");
+
+function currentFilter(){
+  return {
+    region: $("fRegion").value,
+    team:   $("fTeam").value,
+    months: parseInt($("fPeriod").value,10)
+  };
+}
+function filtered(){
+  const f = currentFilter();
+  const minMi = 12 - f.months;
+  return DATA.filter(r =>
+    r.mi >= minMi &&
+    (f.region==="all" || r.region===f.region) &&
+    (f.team==="all"   || r.team===f.team));
+}
+function groupByMonth(rows){
+  const out = {};
+  rows.forEach(r=>{
+    out[r.mi] = out[r.mi] || {revenue:0,bookings:0,plan:0,pipeline:0};
+    out[r.mi].revenue+=r.revenue; out[r.mi].bookings+=r.bookings;
+    out[r.mi].plan+=r.plan; out[r.mi].pipeline+=r.pipeline;
+  });
+  return out;
+}
+
+/* ---------------- charts ---------------- */
+Chart.defaults.font.family = "'Source Sans 3',sans-serif";
+Chart.defaults.color = "#51626B";
+const charts = {};
+
+function buildCharts(){
+  const rows = filtered();
+  const f = currentFilter();
+  const byM = groupByMonth(rows);
+  const mis = Object.keys(byM).map(Number).sort((a,b)=>a-b);
+  const labels = mis.map(i=>MONTHS[i].label);
+
+  /* KPIs */
+  const totRev  = mis.reduce((s,i)=>s+byM[i].revenue,0);
+  const totBook = mis.reduce((s,i)=>s+byM[i].bookings,0);
+  const lastPipe = byM[mis[mis.length-1]]?.pipeline || 0;
+  const ratio = totBook/totRev;
+  const custSet = new Set(rows.map(r=>r.cust));
+  const half = Math.floor(mis.length/2);
+  const revA = mis.slice(0,half).reduce((s,i)=>s+byM[i].revenue,0);
+  const revB = mis.slice(half).reduce((s,i)=>s+byM[i].revenue,0);
+  const revDelta = half? ((revB-revA)/revA*100) : 0;
+
+  $("kRev").textContent = fmt$(totRev);
+  $("kRevD").textContent = (revDelta>=0?"▲ ":"▼ ")+Math.abs(revDelta).toFixed(1)+"% vs prior half";
+  $("kRevD").className = "delta "+(revDelta>=0?"up":"down");
+  $("kPipe").textContent = fmt$(lastPipe);
+  $("kPipeD").textContent = "latest month snapshot";
+  $("kPipeD").className = "delta";
+  $("kRatio").textContent = ratio.toFixed(2);
+  $("kRatioD").textContent = ratio>=1 ? "▲ orders outpacing sales" : "▼ below parity";
+  $("kRatioD").className = "delta "+(ratio>=1?"up":"down");
+  $("kCust").textContent = custSet.size;
+  $("kCustD").textContent = "with activity in period";
+  $("kCustD").className = "delta";
+
+  $("scopeLabel").textContent =
+    ($("fRegion").value==="all"?"All Regions":$("fRegion").value)+" · "+
+    ($("fTeam").value==="all"?"All Teams":$("fTeam").value)+" · Trailing "+f.months+" Mo";
+
+  /* revenue vs plan */
+  draw("cRevenue","bar",{
+    labels,
+    datasets:[
+      {label:"Actual Revenue", data:mis.map(i=>byM[i].revenue), backgroundColor:"#0E6E66", borderRadius:2},
+      {label:"Plan", data:mis.map(i=>byM[i].plan), type:"line", borderColor:"#C2670A",
+       backgroundColor:"#C2670A", borderWidth:2, pointRadius:3, tension:.3}
+    ]},
+    {scales:{y:{ticks:{callback:v=>"$"+Math.round(v)+"K"}}}});
+
+  /* booking ratio rolling 3-mo */
+  const ratios = mis.map((i,idx)=>{
+    const win = mis.slice(Math.max(0,idx-2), idx+1);
+    const r = win.reduce((s,j)=>s+byM[j].revenue,0);
+    const b = win.reduce((s,j)=>s+byM[j].bookings,0);
+    return b/r;
+  });
+  draw("cRatio","line",{
+    labels,
+    datasets:[{label:"Booking Ratio (3-mo avg)", data:ratios, borderColor:"#2E75B6",
+      borderWidth:2, tension:.3,
+      pointBackgroundColor:ratios.map(r=>r>=1?"#0E6E66":"#C2670A"),
+      pointRadius:4, fill:false}]},
+    {scales:{y:{suggestedMin:.85, suggestedMax:1.2}},
+     plugins:{annotationLine:true}});
+
+  /* pipeline by stage (synthetic split of open pipeline) */
+  const stages = ["Prospect","Quoted","Negotiation","Awarded"];
+  const splits = [0.38,0.30,0.20,0.12];
+  draw("cFunnel","bar",{
+    labels:stages,
+    datasets:[{label:"Open Value", data:splits.map(s=>lastPipe*s),
+      backgroundColor:["#5FB3AA","#2E75B6","#7A5AA6","#0E6E66"], borderRadius:2}]},
+    {indexAxis:"y", plugins:{legend:{display:false}},
+     scales:{x:{ticks:{callback:v=>"$"+Math.round(v)+"K"}}}});
+
+  /* revenue by team */
+  const teamAgg = {};
+  rows.forEach(r=>{teamAgg[r.team]=(teamAgg[r.team]||0)+r.revenue});
+  const tNames = Object.keys(teamAgg);
+  draw("cTeam","bar",{
+    labels:tNames,
+    datasets:[{label:"Revenue", data:tNames.map(t=>teamAgg[t]),
+      backgroundColor:["#0E6E66","#C2670A","#2E75B6","#7A5AA6"], borderRadius:2}]},
+    {plugins:{legend:{display:false}},
+     scales:{y:{ticks:{callback:v=>"$"+Math.round(v)+"K"}}}});
+
+  /* top customers */
+  const custAgg = {};
+  rows.forEach(r=>{custAgg[r.cust]=(custAgg[r.cust]||0)+r.revenue});
+  const top = Object.entries(custAgg).sort((a,b)=>b[1]-a[1]).slice(0,7);
+  draw("cCust","bar",{
+    labels:top.map(t=>t[0]),
+    datasets:[{label:"Revenue", data:top.map(t=>t[1]), backgroundColor:"#0E6E66", borderRadius:2}]},
+    {indexAxis:"y", plugins:{legend:{display:false}},
+     scales:{x:{ticks:{callback:v=>"$"+Math.round(v)+"K"}}}});
+
+  /* detail table */
+  const rowsByCust = {};
+  rows.forEach(r=>{
+    const o = rowsByCust[r.cust] = rowsByCust[r.cust] ||
+      {region:r.region, team:r.team, bookings:0, revenue:0, pipeline:0, n:0};
+    o.bookings+=r.bookings; o.revenue+=r.revenue; o.pipeline+=r.pipeline; o.n++;
+  });
+  const tbody = document.querySelector("#tblCust tbody");
+  tbody.innerHTML = "";
+  Object.entries(rowsByCust).sort((a,b)=>b[1].revenue-a[1].revenue).forEach(([name,o])=>{
+    const ratio = o.bookings/o.revenue;
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td>${name}</td><td>${o.region}</td><td>${o.team}</td>
+      <td class="num">${fmt$(o.bookings)}</td>
+      <td class="num">${fmt$(o.revenue)}</td>
+      <td class="num">${fmt$(o.pipeline/o.n)}</td>
+      <td class="num"><span class="ratio-chip ${ratio>=1?"good":"low"}">${ratio.toFixed(2)}</span></td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function draw(id, type, data, extra){
+  if(charts[id]) charts[id].destroy();
+  charts[id] = new Chart($(id), {
+    type, data,
+    options: Object.assign({
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{labels:{boxWidth:12, font:{size:12}}}},
+    }, extra||{})
+  });
+}
+
+["fRegion","fTeam","fPeriod"].forEach(id=>$(id).addEventListener("change", buildCharts));
+$("btnReset").addEventListener("click", ()=>{
+  $("fRegion").value="all"; $("fTeam").value="all"; $("fPeriod").value="12";
+  buildCharts();
+});
+buildCharts();
+</script>
+</body>
+</html>
