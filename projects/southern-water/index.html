@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Southern Water Corp Economics | Sharene Van Dusen — Vantage Operations</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0D1B2A; --navy2: #12233A; --card: #16293F; --border: #1F3A52;
+    --teal: #0F8B8B; --accent: #00C2C2; --amber: #E8A838; --red: #E05C5C;
+    --text: #E8F0F7; --muted: #7A9BB5; --white: #FFFFFF;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--navy); color: var(--text); line-height: 1.6; }
+  a { color: var(--accent); text-decoration: none; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+  nav { position: sticky; top: 0; z-index: 50; background: rgba(13,27,42,0.92); backdrop-filter: blur(6px); border-bottom: 1px solid var(--border); }
+  .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 60px; }
+  .brand { font-weight: 700; font-size: 16px; color: var(--white); }
+  .brand span { color: var(--accent); font-weight: 400; }
+  .back { font-size: 14px; color: var(--muted); }
+  .back:hover { color: var(--accent); }
+  header { padding: 56px 0 36px; border-bottom: 1px solid var(--border); }
+  .eyebrow { font-family: 'DM Mono', monospace; font-size: 13px; color: var(--accent); letter-spacing: 1px; margin-bottom: 14px; }
+  .eyebrow::before { content: "> "; color: var(--muted); }
+  h1 { font-size: clamp(26px, 4vw, 40px); font-weight: 700; color: var(--white); line-height: 1.2; }
+  .sub { margin-top: 14px; max-width: 680px; font-size: 16px; color: var(--muted); font-weight: 300; }
+  .tag { display: inline-block; margin-top: 18px; font-family: 'DM Mono', monospace; font-size: 11.5px; color: var(--amber); border: 1px solid var(--border); border-radius: 4px; padding: 5px 10px; }
+  section { padding: 44px 0; border-bottom: 1px solid var(--border); }
+  .sec-label { font-family: 'DM Mono', monospace; font-size: 13px; color: var(--amber); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 8px; }
+  h2 { font-size: 22px; font-weight: 700; color: var(--white); margin-bottom: 22px; }
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+  .kpi { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 18px; }
+  .kpi .label { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
+  .kpi .val { font-size: 26px; font-weight: 700; color: var(--white); margin-top: 6px; }
+  .kpi .note { font-size: 12.5px; color: var(--muted); margin-top: 4px; }
+  .chart-card { background: var(--navy2); border: 1px solid var(--border); border-radius: 8px; padding: 22px; margin-bottom: 20px; }
+  .chart-card h3 { font-size: 15px; font-weight: 500; color: var(--white); margin-bottom: 4px; }
+  .chart-card p { font-size: 13px; color: var(--muted); margin-bottom: 14px; }
+  .chart-box { position: relative; height: 280px; }
+  .findings p { max-width: 760px; font-size: 15.5px; color: var(--muted); margin-bottom: 14px; }
+  .findings b { color: var(--text); font-weight: 500; }
+  .rec { background: var(--card); border-left: 3px solid var(--teal); padding: 16px 20px; margin-bottom: 14px; max-width: 760px; }
+  .rec h4 { font-size: 14.5px; color: var(--accent); font-weight: 500; margin-bottom: 4px; }
+  .rec p { font-size: 14px; color: var(--muted); }
+  footer { padding: 36px 0 56px; font-family: 'DM Mono', monospace; font-size: 12px; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap nav-inner">
+    <div class="brand">Vantage<span>Operations</span></div>
+    <a class="back" href="../../">← Back to portfolio</a>
+  </div>
+</nav>
+
+<header>
+  <div class="wrap">
+    <div class="eyebrow">case_study · economic analysis · units 6–9</div>
+    <h1>Southern Water Corp — Production Economics</h1>
+    <p class="sub">An economic and statistical analysis of a desalination utility's three production plants: cost-to-produce vs. volume relationships, economies of scale, plant-level correlation analysis, and Python-based statistical work on pump failure behavior using rolling standard deviation and regression.</p>
+    <span class="tag">TOOLS: Python (pandas, statsmodels) · Excel · Chart.js — coursework case-study data</span>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <div class="sec-label">// The Core Finding</div>
+    <h2>Economies of scale, quantified per plant</h2>
+    <div class="kpis">
+      <div class="kpi"><div class="label">Kootha correlation</div><div class="val">r = −0.83</div><div class="note">strongest scale economics</div></div>
+      <div class="kpi"><div class="label">Jutik correlation</div><div class="val">r ≈ −0.50</div><div class="note">moderate, most stable ops</div></div>
+      <div class="kpi"><div class="label">Surjek correlation</div><div class="val">r ≈ −0.50</div><div class="note">highest cost variability</div></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="sec-label">// Visual Analysis</div>
+    <h2>Cost and volume across the three plants</h2>
+
+    <div class="chart-card">
+      <h3>Average cost to produce ($/ML)</h3>
+      <p>Surjek produces at more than twice Kootha's unit cost — despite running the highest volumes — pointing to operational inefficiency rather than scale limits.</p>
+      <div class="chart-box"><canvas id="costChart"></canvas></div>
+    </div>
+
+    <div class="chart-card">
+      <h3>Average production volume (GL)</h3>
+      <p>Volume alone doesn't explain cost performance: the highest-volume plant is also the most expensive per megaliter.</p>
+      <div class="chart-box"><canvas id="volChart"></canvas></div>
+    </div>
+
+    <div class="chart-card">
+      <h3>Cost range per plant ($/ML, min to max)</h3>
+      <p>Surjek's cost band ($32.61–$86.30/ML) is far wider than its peers — the variability that flagged it for operational review, including a November 2013 anomaly.</p>
+      <div class="chart-box"><canvas id="rangeChart"></canvas></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap findings">
+    <div class="sec-label">// Key Findings</div>
+    <h2>What the data showed</h2>
+    <p><b>A clear negative cost-volume relationship exists at every plant.</b> As production volume rises, cost per megaliter falls — the classic economies-of-scale pattern driven by fixed costs spreading over larger output. The effect is strongest at Kootha (r = −0.83) and moderate at Surjek and Jutik (r ≈ −0.50).</p>
+    <p><b>Surjek is the operational outlier.</b> Its cost band ranges from $32.61 to $86.30 per megaliter with the weakest scale benefits relative to its size, and a pronounced cost spike in November 2013 — the single biggest opportunity for operational review in the network.</p>
+    <p><b>The statistics unit extended the analysis to equipment reliability.</b> Using Python, rolling standard deviation on pump sensor variables isolated the volatility signature that precedes pump failure events, and a multivariate regression identified which operating variables carry the most predictive weight.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="sec-label">// Recommendations</div>
+    <h2>Management takeaways</h2>
+    <div class="rec"><h4>Prioritize volume at Kootha</h4><p>Steepest cost-reduction curve in the network — every additional gigaliter routed here earns the largest unit-cost benefit.</p></div>
+    <div class="rec"><h4>Investigate Surjek's cost variability</h4><p>Audit the November 2013 anomaly and establish minimum viable production thresholds to keep the plant inside its efficient operating band.</p></div>
+    <div class="rec"><h4>Use the volume-cost curves for planning</h4><p>Forecast production costs from planned volumes, schedule maintenance in low-demand windows, and balance load across plants using each plant's actual scale economics.</p></div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">© 2026 Sharene Van Dusen · Vantage Operations LLC · Coursework case study — Lawrence Technological University / Springboard Data Analytics program</div>
+</footer>
+
+<script>
+Chart.defaults.color = '#7A9BB5';
+Chart.defaults.borderColor = '#1F3A52';
+Chart.defaults.font.family = "'DM Sans', sans-serif";
+
+new Chart(document.getElementById('costChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Kootha', 'Jutik', 'Surjek'],
+    datasets: [{ data: [25.79, 36.12, 55.70], backgroundColor: ['#00C2C2', '#0F8B8B', '#E8A838'], borderRadius: 4 }]
+  },
+  options: { maintainAspectRatio: false, plugins: { legend: { display: false } },
+    scales: { y: { title: { display: true, text: '$ per megaliter' } } } }
+});
+
+new Chart(document.getElementById('volChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Kootha', 'Jutik', 'Surjek'],
+    datasets: [{ data: [170.7, 211.2, 275.5], backgroundColor: ['#00C2C2', '#0F8B8B', '#E8A838'], borderRadius: 4 }]
+  },
+  options: { maintainAspectRatio: false, plugins: { legend: { display: false } },
+    scales: { y: { title: { display: true, text: 'Gigaliters' } } } }
+});
+
+new Chart(document.getElementById('rangeChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Kootha', 'Jutik', 'Surjek'],
+    datasets: [
+      { label: 'Min cost', data: [18.54, 28.47, 32.61], backgroundColor: '#0F8B8B', borderRadius: 4 },
+      { label: 'Max cost', data: [37.54, 43.72, 86.30], backgroundColor: '#E05C5C', borderRadius: 4 }
+    ]
+  },
+  options: { maintainAspectRatio: false, plugins: { legend: { labels: { boxWidth: 12 } } },
+    scales: { y: { title: { display: true, text: '$ per megaliter' } } } }
+});
+</script>
+
+</body>
+</html>

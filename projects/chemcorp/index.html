@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ChemCorp Financial Analysis | Sharene Van Dusen — Vantage Operations</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0D1B2A; --navy2: #12233A; --card: #16293F; --border: #1F3A52;
+    --teal: #0F8B8B; --accent: #00C2C2; --amber: #E8A838; --red: #E05C5C;
+    --green: #3DBE7B; --text: #E8F0F7; --muted: #7A9BB5; --white: #FFFFFF;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--navy); color: var(--text); line-height: 1.6; }
+  a { color: var(--accent); text-decoration: none; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+  nav { position: sticky; top: 0; z-index: 50; background: rgba(13,27,42,0.92); backdrop-filter: blur(6px); border-bottom: 1px solid var(--border); }
+  .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 60px; }
+  .brand { font-weight: 700; font-size: 16px; color: var(--white); }
+  .brand span { color: var(--accent); font-weight: 400; }
+  .back { font-size: 14px; color: var(--muted); }
+  .back:hover { color: var(--accent); }
+  header { padding: 56px 0 36px; border-bottom: 1px solid var(--border); }
+  .eyebrow { font-family: 'DM Mono', monospace; font-size: 13px; color: var(--accent); letter-spacing: 1px; margin-bottom: 14px; }
+  .eyebrow::before { content: "> "; color: var(--muted); }
+  h1 { font-size: clamp(26px, 4vw, 40px); font-weight: 700; color: var(--white); line-height: 1.2; }
+  .sub { margin-top: 14px; max-width: 680px; font-size: 16px; color: var(--muted); font-weight: 300; }
+  .tag { display: inline-block; margin-top: 18px; font-family: 'DM Mono', monospace; font-size: 11.5px; color: var(--amber); border: 1px solid var(--border); border-radius: 4px; padding: 5px 10px; }
+  section { padding: 44px 0; border-bottom: 1px solid var(--border); }
+  .sec-label { font-family: 'DM Mono', monospace; font-size: 13px; color: var(--amber); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 8px; }
+  h2 { font-size: 22px; font-weight: 700; color: var(--white); margin-bottom: 22px; }
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; }
+  .kpi { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 18px; }
+  .kpi .label { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
+  .kpi .val { font-size: 26px; font-weight: 700; color: var(--white); margin-top: 6px; }
+  .kpi .note { font-size: 12.5px; color: var(--muted); margin-top: 4px; }
+  .chart-card { background: var(--navy2); border: 1px solid var(--border); border-radius: 8px; padding: 22px; margin-bottom: 20px; }
+  .chart-card h3 { font-size: 15px; font-weight: 500; color: var(--white); margin-bottom: 4px; }
+  .chart-card p { font-size: 13px; color: var(--muted); margin-bottom: 14px; }
+  .chart-box { position: relative; height: 280px; }
+  .findings p { max-width: 760px; font-size: 15.5px; color: var(--muted); margin-bottom: 14px; }
+  .findings b { color: var(--text); font-weight: 500; }
+  .rec { background: var(--card); border-left: 3px solid var(--teal); padding: 16px 20px; margin-bottom: 14px; max-width: 760px; }
+  .rec h4 { font-size: 14.5px; color: var(--accent); font-weight: 500; margin-bottom: 4px; }
+  .rec p { font-size: 14px; color: var(--muted); }
+  footer { padding: 36px 0 56px; font-family: 'DM Mono', monospace; font-size: 12px; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap nav-inner">
+    <div class="brand">Vantage<span>Operations</span></div>
+    <a class="back" href="../../">← Back to portfolio</a>
+  </div>
+</nav>
+
+<header>
+  <div class="wrap">
+    <div class="eyebrow">case_study · financial analysis · unit 11</div>
+    <h1>ChemCorp Financial Performance Analysis</h1>
+    <p class="sub">An 11-question financial deep-dive into a specialty chemical distributor's fiscal year: profitability by industry and product, margin leakage at the transaction level, customer concentration risk, and a quantified action plan presented to an executive audience.</p>
+    <span class="tag">TOOLS: Tableau · Excel · Chart.js — coursework case-study data</span>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <div class="sec-label">// The Numbers</div>
+    <h2>Fiscal year at a glance</h2>
+    <div class="kpis">
+      <div class="kpi"><div class="label">Revenue</div><div class="val">$41.78M</div><div class="note">544 active customers</div></div>
+      <div class="kpi"><div class="label">Profit</div><div class="val">$24.69M</div><div class="note">59.09% overall margin</div></div>
+      <div class="kpi"><div class="label">Margin Leakage</div><div class="val">1,254</div><div class="note">negative-margin transactions</div></div>
+      <div class="kpi"><div class="label">Recovery Identified</div><div class="val">+$201K</div><div class="note">+1.45pp margin uplift</div></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="sec-label">// Visual Analysis</div>
+    <h2>Where the opportunity and the leakage live</h2>
+
+    <div class="chart-card">
+      <h3>Profit margin — growth targets vs. company average</h3>
+      <p>Biotechnology and Machinery &amp; Industrial Goods both out-earn the company average by roughly five points, with the two largest customer bases in the book (97 and 98 accounts).</p>
+      <div class="chart-box"><canvas id="marginChart"></canvas></div>
+    </div>
+
+    <div class="chart-card">
+      <h3>Negative-margin transactions by focus area</h3>
+      <p>Two industries account for two-thirds of all money-losing transactions — the analysis traced most of it to Chemical A pricing.</p>
+      <div class="chart-box"><canvas id="negChart"></canvas></div>
+    </div>
+
+    <div class="chart-card">
+      <h3>Projected impact of recommended actions</h3>
+      <p>Modeling the removal of negative-margin business: revenue dips 1.6% while profit rises and margin improves 1.45 points.</p>
+      <div class="chart-box"><canvas id="impactChart"></canvas></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap findings">
+    <div class="sec-label">// Key Findings</div>
+    <h2>What the data showed</h2>
+    <p><b>Growth is concentrated where margins are strongest.</b> Biotechnology combined the highest profit margin (64.4%), a large customer base (97 accounts), and the top attractiveness score in the analysis (0.98) — but only $3.9M in current revenue, signaling clear expansion headroom.</p>
+    <p><b>Margin leakage was hiding at the transaction level.</b> 1,254 individual transactions carried negative margins, concentrated in Aerospace &amp; Defense (510) and Paper &amp; Packaging (316). Product-level analysis traced the pattern to Chemical A, which sold at a −21.97% margin into Medical Equipment and −4.31% into Biotechnology.</p>
+    <p><b>Concentration risk compounds the problem.</b> Paper &amp; Packaging alone drives 48% of total profit, and Medical Equipment shows the highest revenue volatility in the book (26.8% coefficient of variation) — a diversification concern flagged for leadership.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="sec-label">// Recommendations</div>
+    <h2>The executive action plan</h2>
+    <div class="rec"><h4>Grow — invest in Biotechnology</h4><p>Highest margin, largest headroom, strongest attractiveness score. Secondary target: Machinery &amp; Industrial Goods (63.5% margin, 98 customers).</p></div>
+    <div class="rec"><h4>Fix — reprice or discontinue Chemical A</h4><p>Eliminate the 1,254 negative-margin transactions and exit four structurally unprofitable customers, recovering ~$201K in profit and 1.45 points of margin.</p></div>
+    <div class="rec"><h4>Protect — de-risk the profit base</h4><p>Reduce dependency on Paper &amp; Packaging (48% of profit), manage Medical Equipment volatility, and expand the California footprint ($4.1M base).</p></div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">© 2026 Sharene Van Dusen · Vantage Operations LLC · Coursework case study — Lawrence Technological University / Springboard Data Analytics program</div>
+</footer>
+
+<script>
+Chart.defaults.color = '#7A9BB5';
+Chart.defaults.borderColor = '#1F3A52';
+Chart.defaults.font.family = "'DM Sans', sans-serif";
+
+new Chart(document.getElementById('marginChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Biotechnology', 'Machinery & Industrial', 'Company average'],
+    datasets: [{ data: [64.4, 63.5, 59.09], backgroundColor: ['#00C2C2', '#0F8B8B', '#7A9BB5'], borderRadius: 4 }]
+  },
+  options: { maintainAspectRatio: false, plugins: { legend: { display: false } },
+    scales: { y: { min: 50, max: 70, ticks: { callback: v => v + '%' } } } }
+});
+
+new Chart(document.getElementById('negChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Aerospace & Defense', 'Paper & Packaging', 'All other industries'],
+    datasets: [{ data: [510, 316, 428], backgroundColor: ['#E05C5C', '#E8A838', '#7A9BB5'], borderRadius: 4 }]
+  },
+  options: { indexAxis: 'y', maintainAspectRatio: false, plugins: { legend: { display: false } },
+    scales: { x: { title: { display: true, text: 'Negative-margin transactions' } } } }
+});
+
+new Chart(document.getElementById('impactChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Revenue ($M)', 'Profit ($M)', 'Margin (%)'],
+    datasets: [
+      { label: 'Current', data: [41.78, 24.69, 59.09], backgroundColor: '#7A9BB5', borderRadius: 4 },
+      { label: 'After actions', data: [41.11, 24.89, 60.54], backgroundColor: '#00C2C2', borderRadius: 4 }
+    ]
+  },
+  options: { maintainAspectRatio: false, plugins: { legend: { labels: { boxWidth: 12 } } } }
+});
+</script>
+
+</body>
+</html>
